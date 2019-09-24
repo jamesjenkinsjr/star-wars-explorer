@@ -1,26 +1,60 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import './App.css'
+import CharacterList from './CharacterList'
+import Search from './Search'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      loading: true,
+      search: '',
+      characters: []
+    }
+  }
+
+  componentDidMount() {
+    fetch('https://swapi.co/api/people')
+      .then(res => res.json())
+      .then(data => {
+        this.setState({
+          loading: false,
+          search: '',
+          characters: data.results,
+        })
+      })
+  }
+  render() {
+    let handleSearch = (search) => {
+      this.setState({
+        loading: true,
+        search
+      })
+      fetch(`https://swapi.co/api/people?search=${search}`)
+      .then(res => res.json())
+      .then(data => {
+        this.setState({
+          loading: false,
+          search: '',
+          characters: data.results,
+        })
+      })
+    }
+    return (
+      <div className="App">
+        <h1>Star Wars Explorer</h1>
+        <Search handleSearch={handleSearch}/>
+        {this.state.loading ? (
+          <p>Loading data from a galaxy far, far away...</p>
+        ) : (
+          ''
+        )}
+        {!this.state.loading && (
+            <CharacterList characters={this.state.characters} />
+        )}
+      </div>
+    )
+  }
 }
 
-export default App;
+export default App
