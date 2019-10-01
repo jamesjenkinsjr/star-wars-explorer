@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import CharacterList from './CharacterList'
+import ResultsList from './ResultsList'
 import Search from './Search'
 
 class App extends React.Component {
@@ -10,7 +10,8 @@ class App extends React.Component {
       error: '',
       loading: true,
       search: '',
-      characters: [],
+      filter: 'people',
+      data: [],
     }
   }
 
@@ -25,40 +26,75 @@ class App extends React.Component {
       .then(data => {
         this.setState({
           loading: false,
-          search: '',
-          characters: data.results,
+          data: data.results,
         })
       })
       .catch(error => {
         this.setState({
-          error,
+          error: error.message,
         })
       })
   }
 
-  handleSearch = e => {
-    const searchTerm = e.currentTarget.value
-    if (searchTerm !== '') {
-      this.setState({
-        loading: true,
-        search: searchTerm,
-      })
+  debounce = (func, time) => {
+    return () => {
+      const next = func;
+      if(this.timer) {
+        this.clearTimeout(this.timer)
+      }
+      this.timer = this.setTimeout(next, time > 0 ? time : 1000)
     }
   }
+
+  handleSearch = e => {
+    const search = e.currentTarget.value
+    this.setState({
+      loading: true,
+      search: search,
+    })
+  }
+
+  handleFilter = e => {
+    const filter = e.currentTarget.value
+    this.setState({
+      loading: true,
+      filter,
+    })
+  }
+
   handleSearchResults = () => {
     const search = this.state.search
-    fetch(`https://swapi.co/api/people?search=${search}`)
-      .then(res => res.json())
+    const filter = this.state.filter
+    const URL = !search
+      ? `https://swapi.co/api/${filter}`
+      : `https://swapi.co/api/${filter}/?search=${search}`
+    fetch(URL)
+    .then(res => {
+      if (res.status === 200) {
+        return res.json()
+      }
+      throw new Error('Error fetching data from SWAPI')
+    })
       .then(data => {
         this.setState({
-          search: '',
-          characters: data.results,
+          data: data.results,
           loading: false,
         })
       })
+      .catch(error => {
+        this.setState({
+          error: error.message,
+        })
+      })
   }
+
+  componentDidUpdate() {
+    this.state.loading && this.debounce(this.handleSearchResults(), 50000)
+  }
+
+  
   render() {
-    this.state.search !== '' && this.handleSearchResults()
+
     const loadApp = () => {
       return (
         <>
@@ -67,21 +103,24 @@ class App extends React.Component {
           ) : (
             ''
           )}
-          {!this.state.loading && this.state.characters.length > 0 && (
-            <CharacterList characters={this.state.characters} />
+          {!this.state.loading && this.state.data.length > 0 && (
+            <ResultsList data={this.state.data} />
           )}
-          {this.state.characters.length === 0 && !this.state.loading && (
+          {this.state.data.length === 0 && !this.state.loading && (
             <p>No results found in all the universe!</p>
           )}
         </>
       )
     }
 
-    const renderError = () => <p className='error'>{this.state.error}</p>
+    const renderError = () => <p className="error">{this.state.error}</p>
     return (
       <div className="App">
         <h1>Star Wars Explorer</h1>
-        <Search handleSearch={this.handleSearch} />
+        <Search
+          handleSearch={this.handleSearch}
+          handleFilter={this.handleFilter}
+        />
         {this.state.error.length === 0 ? loadApp() : renderError()}
       </div>
     )
