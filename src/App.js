@@ -37,29 +37,54 @@ class App extends React.Component {
   }
 
   debounce = (func, time) => {
+    let timer;
     return () => {
       const next = func;
-      if(this.timer) {
-        this.clearTimeout(this.timer)
+      if(timer) {
+        clearTimeout(timer)
       }
-      this.timer = this.setTimeout(next, time > 0 ? time : 1000)
+      timer = setTimeout(next, time > 0 ? time : 1000)
     }
   }
 
   handleSearch = e => {
+    const debounce = (func, time) => {
+      console.log('debouncer matters?')
+      let timer;
+      return () => {
+        const next = () => func();
+        if(timer) {
+          clearTimeout(timer)
+          console.log('debouncer cleared?')
+        }
+        timer = setTimeout(next, time > 0 ? time : 1000)
+      }
+    }
     const search = e.currentTarget.value
-    this.setState({
+    debounce(this.setState({
       loading: true,
       search: search,
-    })
+    }), 5000)
   }
 
   handleFilter = e => {
+    const debounce = (func, time) => {
+      console.log('debouncer matters?')
+      let timer;
+      return () => {
+        const next = () => func();
+        if(timer) {
+          clearTimeout(timer)
+          console.log('debouncer cleared?')
+        }
+        timer = setTimeout(next, time > 0 ? time : 1000)
+      }
+    }
     const filter = e.currentTarget.value
-    this.setState({
+    debounce(this.setState({
       loading: true,
       filter,
-    })
+    }), 5000)
   }
 
   handleSearchResults = () => {
@@ -89,9 +114,8 @@ class App extends React.Component {
   }
 
   componentDidUpdate() {
-    this.state.loading && this.debounce(this.handleSearchResults(), 50000)
+    this.state.loading && this.handleSearchResults()
   }
-
   
   render() {
 
