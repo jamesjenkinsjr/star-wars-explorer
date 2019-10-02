@@ -77,6 +77,7 @@ class App extends React.Component {
         throw new Error('Error fetching data from SWAPI')
       })
       .then(data => {
+        console.log(data)
         this.setState({
           data: data.results,
           loading: false,
