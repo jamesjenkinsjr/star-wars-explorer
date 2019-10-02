@@ -37,54 +37,35 @@ class App extends React.Component {
   }
 
   debounce = (func, time) => {
-    let timer;
-    return () => {
-      const next = func;
-      if(timer) {
+    console.log('debouncer matters?')
+    let timer
+    return (...args) => {
+      const next = () => func(...args)
+      console.log(next)
+      if (timer) {
         clearTimeout(timer)
+        console.log('debouncer cleared?')
       }
       timer = setTimeout(next, time > 0 ? time : 1000)
+      console.log(timer)
     }
   }
 
-  handleSearch = e => {
-    const debounce = (func, time) => {
-      console.log('debouncer matters?')
-      let timer;
-      return () => {
-        const next = () => func();
-        if(timer) {
-          clearTimeout(timer)
-          console.log('debouncer cleared?')
-        }
-        timer = setTimeout(next, time > 0 ? time : 1000)
-      }
-    }
-    const search = e.currentTarget.value
-    debounce(this.setState({
+  handleSearch = (e, value) => {
+    const search = value
+    console.log(e)
+    this.setState({
       loading: true,
       search: search,
-    }), 5000)
+    })
   }
 
   handleFilter = e => {
-    const debounce = (func, time) => {
-      console.log('debouncer matters?')
-      let timer;
-      return () => {
-        const next = () => func();
-        if(timer) {
-          clearTimeout(timer)
-          console.log('debouncer cleared?')
-        }
-        timer = setTimeout(next, time > 0 ? time : 1000)
-      }
-    }
     const filter = e.currentTarget.value
-    debounce(this.setState({
+    this.setState({
       loading: true,
       filter,
-    }), 5000)
+    })
   }
 
   handleSearchResults = () => {
@@ -94,12 +75,12 @@ class App extends React.Component {
       ? `https://swapi.co/api/${filter}`
       : `https://swapi.co/api/${filter}/?search=${search}`
     fetch(URL)
-    .then(res => {
-      if (res.status === 200) {
-        return res.json()
-      }
-      throw new Error('Error fetching data from SWAPI')
-    })
+      .then(res => {
+        if (res.status === 200) {
+          return res.json()
+        }
+        throw new Error('Error fetching data from SWAPI')
+      })
       .then(data => {
         this.setState({
           data: data.results,
@@ -116,9 +97,8 @@ class App extends React.Component {
   componentDidUpdate() {
     this.state.loading && this.handleSearchResults()
   }
-  
-  render() {
 
+  render() {
     const loadApp = () => {
       return (
         <>
@@ -142,7 +122,7 @@ class App extends React.Component {
       <div className="App">
         <h1>Star Wars Explorer</h1>
         <Search
-          handleSearch={this.handleSearch}
+          handleSearch={this.debounce((e) => this.handleSearch(e), 5000)}
           handleFilter={this.handleFilter}
         />
         {this.state.error.length === 0 ? loadApp() : renderError()}

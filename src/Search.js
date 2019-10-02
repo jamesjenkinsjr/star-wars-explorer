@@ -9,7 +9,7 @@ export default function Search(props) {
         type="text"
         id="search"
         name="search"
-        onChange={e => props.handleSearch(e)}
+        onChange={e => props.handleSearch(e, e.currentTarget.value)}
       />
     </label>
     <label htmlFor="type">Filter By:
