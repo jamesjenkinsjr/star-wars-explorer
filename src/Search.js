@@ -9,11 +9,11 @@ export default function Search(props) {
         type="text"
         id="search"
         name="search"
-        onChange={e => props.handleSearch(e, e.currentTarget.value)}
+        onChange={e => props.handleSearch(e.currentTarget.value)}
       />
     </label>
     <label htmlFor="type">Filter By:
-      <select name="type" id="type" onChange={e => props.handleFilter(e)}>
+      <select name="type" id="type" onChange={e => props.handleFilter(e.currentTarget.value)}>
         <option value="people" defaultChecked>Characters</option>
         <option value="planets">Planets</option>
         <option value="species">Species</option>

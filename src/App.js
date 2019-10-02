@@ -37,31 +37,26 @@ class App extends React.Component {
   }
 
   debounce = (func, time) => {
-    console.log('debouncer matters?')
     let timer
     return (...args) => {
       const next = () => func(...args)
-      console.log(next)
       if (timer) {
         clearTimeout(timer)
-        console.log('debouncer cleared?')
       }
       timer = setTimeout(next, time > 0 ? time : 1000)
-      console.log(timer)
     }
   }
 
-  handleSearch = (e, value) => {
+  handleSearch = value => {
     const search = value
-    console.log(e)
     this.setState({
       loading: true,
       search: search,
     })
   }
 
-  handleFilter = e => {
-    const filter = e.currentTarget.value
+  handleFilter = value => {
+    const filter = value
     this.setState({
       loading: true,
       filter,
@@ -122,8 +117,8 @@ class App extends React.Component {
       <div className="App">
         <h1>Star Wars Explorer</h1>
         <Search
-          handleSearch={this.debounce((e) => this.handleSearch(e), 5000)}
-          handleFilter={this.handleFilter}
+          handleSearch={this.debounce(value => this.handleSearch(value), 500)}
+          handleFilter={this.debounce(value => this.handleFilter(value), 500)}
         />
         {this.state.error.length === 0 ? loadApp() : renderError()}
       </div>
